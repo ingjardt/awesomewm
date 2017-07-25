@@ -46,7 +46,7 @@ beautiful.wallpaper = "/home/ingjard/.wallpaper/wallpaper.png"
 
 -- This is used later as the default terminal and editor to run.
 terminal = "x-terminal-emulator"
-editor = os.getenv("EDITOR") or "editor"
+editor =  os.getenv("EDITOR") or "editor"
 editor_cmd = terminal .. " -e " .. editor
 
 -- Default modkey.
@@ -237,6 +237,33 @@ root.buttons(awful.util.table.join(
 
 -- {{{ Key bindings
 globalkeys = awful.util.table.join(
+    --Ingjards hotkeys
+    awful.key({ modkey,           }, "w", function () awful.spawn("browser") end,
+              {description="Open Browser", group="Ingjard"}),
+    awful.key({ modkey,           }, "e", function () awful.spawn("newnote") end,
+              {description="New Note", group="Ingjard"}),
+    awful.key({ modkey,           }, "x", function () awful.spawn("xfce4-appfinder -c", {floating = true, placement = awful.placement.centered } ) end,
+              {description="Open App Finder", group="Ingjard"}),
+    awful.key({ modkey,           }, "p", function () awful.spawn(".screenlayout/hotkey_super_p.sh") end,
+              {description="Screen Layout: Laptop Only", group="Ingjard"}),
+    awful.key({ modkey, "Shift"           }, "p", function () awful.spawn(".screenlayout/hotkey_super_shift_p.sh" ) end,
+              {description="Screen Layout: Docking", group="Ingjard"}),
+    awful.key({ modkey,           }, "g", function () awful.spawn("evince /home/ingjard/Dropbox/GTD/MazeMap/GTD.pdf" ) end,
+              {description="GTD Checklist", group="Ingjard"}),
+    awful.key({ modkey,           }, "b", function () awful.spawn("thunar" ) end,
+              {description="Open File Browser", group="Ingjard"}),
+    awful.key({           }, "Print", function () awful.spawn("xfce4-screenshooter" ) end,
+              {description="Take Screenshot", group="Ingjard"}),
+    awful.key({           }, "XF86AudioRaiseVolume", function () awful.spawn("volume_up" ) end
+              ),
+    awful.key({           }, "XF86AudioLowerVolume", function () awful.spawn("volume_down" ) end
+              ),
+    awful.key({           }, "XF86AudioMute", function () awful.spawn("mute_toggle" ) end
+              ),
+
+
+
+
     awful.key({ modkey,           }, "s",      hotkeys_popup.show_help,
               {description="show help", group="awesome"}),
     awful.key({ modkey,           }, "Left",   awful.tag.viewprev,
@@ -258,8 +285,8 @@ globalkeys = awful.util.table.join(
         end,
         {description = "focus previous by index", group = "client"}
     ),
-    awful.key({ modkey,           }, "w", function () mymainmenu:show() end,
-              {description = "show main menu", group = "awesome"}),
+    --awful.key({ modkey,           }, "w", function () mymainmenu:show() end,
+    --          {description = "show main menu", group = "awesome"}),
 
     -- Layout manipulation
     awful.key({ modkey, "Shift"   }, "j", function () awful.client.swap.byidx(  1)    end,
@@ -319,21 +346,21 @@ globalkeys = awful.util.table.join(
 
     -- Prompt
     awful.key({ modkey },            "r",     function () awful.screen.focused().mypromptbox:run() end,
-              {description = "run prompt", group = "launcher"}),
+              {description = "run prompt", group = "launcher"})
 
-    awful.key({ modkey }, "x",
-              function ()
-                  awful.prompt.run {
-                    prompt       = "Run Lua code: ",
-                    textbox      = awful.screen.focused().mypromptbox.widget,
-                    exe_callback = awful.util.eval,
-                    history_path = awful.util.get_cache_dir() .. "/history_eval"
-                  }
-              end,
-              {description = "lua execute prompt", group = "awesome"}),
+    -- awful.key({ modkey }, "x",
+    --           function ()
+    --               awful.prompt.run {
+    --                 prompt       = "Run Lua code: ",
+    --                 textbox      = awful.screen.focused().mypromptbox.widget,
+    --                 exe_callback = awful.util.eval,
+    --                 history_path = awful.util.get_cache_dir() .. "/history_eval"
+    --               }
+    --           end,
+    --           {description = "lua execute prompt", group = "awesome"}),
     -- Menubar
-    awful.key({ modkey }, "p", function() menubar.show() end,
-              {description = "show the menubar", group = "launcher"})
+    -- awful.key({ modkey }, "p", function() menubar.show() end,
+    --           {description = "show the menubar", group = "launcher"})
 )
 
 clientkeys = awful.util.table.join(
@@ -548,3 +575,21 @@ end)
 client.connect_signal("focus", function(c) c.border_color = beautiful.border_focus end)
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
 -- }}}
+
+--Ingjards custom stuff below
+
+function run_once(cmd)
+  findme = cmd
+  firstspace = cmd:find(" ")
+  if firstspace then
+    findme = cmd:sub(0, firstspace-1)
+  end
+  awful.util.spawn_with_shell("pgrep -u $USER -x " .. findme .. " > /dev/null || (" .. cmd .. ")")
+end
+
+
+run_once("xfce4-power-manager")
+run_once("dropbox start")
+run_once("nm-applet")
+run_once("synergy")
+run_once("update-manager")
