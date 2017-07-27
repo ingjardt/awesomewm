@@ -239,6 +239,19 @@ root.buttons(awful.util.table.join(
 
 -- {{{ Key bindings
 globalkeys = awful.util.table.join(
+    -- Ingjards media hotkeys
+    awful.key({modkey            }, "KP_Begin", function () awful.spawn("/home/ingjard/bin/spotify_pause") end,
+              {description="Spotify Play/Pause", group="Media"}),
+    awful.key({modkey             }, "KP_Left", function () awful.spawn("/home/ingjard/bin/spotify_prev") end,
+              {description="Spotify Previous Song", group="Media"}),
+    awful.key({ modkey            }, "KP_Right", function () awful.spawn("/home/ingjard/bin/spotify_next") end,
+              {description="Spotify Next Song", group="Media"}),
+    awful.key({ modkey            }, "KP_Up", function () awful.spawn("/home/ingjard/bin/volume_up") end,
+              {description="Volume Up", group="Media"}),
+    awful.key({ modkey            }, "KP_Down", function () awful.spawn("/home/ingjard/bin/volume_down") end,
+              {description="Volume Down", group="Media"}),
+    awful.key({  modkey           }, "KP_Insert", function () awful.spawn("/home/ingjard/bin/mute_toggle") end,
+              {description="Toggle Mute", group="Media"}),
     --Ingjards hotkeys
     awful.key({ modkey,           }, "w", function () awful.spawn("browser") end,
               {description="Open Browser", group="Ingjard"}),
