@@ -287,9 +287,9 @@ globalkeys = awful.util.table.join(
               {description = "view previous", group = "tag"}),
     awful.key({ modkey,           }, "Right",  awful.tag.viewnext,
               {description = "view next", group = "tag"}),
-    awful.key({ modkey,"Shift"           }, "j",   awful.tag.viewprev,
+    awful.key({ modkey,"Control"           }, "j",   awful.tag.viewprev,
               {description = "view previous", group = "tag"}),
-    awful.key({ modkey,"Shift"           }, "k",  awful.tag.viewnext,
+    awful.key({ modkey,"Control"           }, "k",  awful.tag.viewnext,
               {description = "view next", group = "tag"}),
     awful.key({ modkey,           }, "Escape", awful.tag.history.restore,
               {description = "go back", group = "tag"}),
@@ -318,9 +318,9 @@ globalkeys = awful.util.table.join(
               {description = "swap with next client by index", group = "client"}),
     awful.key({ modkey    }, "l", function () awful.client.swap.byidx( -1)    end,
               {description = "swap with previous client by index", group = "client"}),
-    awful.key({ modkey, "Control" }, "j", function () awful.screen.focus_relative( 1) end,
+    awful.key({ modkey, "Shift" }, "j", function () awful.screen.focus_relative( 1) end,
               {description = "focus the next screen", group = "screen"}),
-    awful.key({ modkey, "Control" }, "k", function () awful.screen.focus_relative(-1) end,
+    awful.key({ modkey, "Shift" }, "k", function () awful.screen.focus_relative(-1) end,
               {description = "focus the previous screen", group = "screen"}),
     awful.key({ modkey,           }, "u", awful.client.urgent.jumpto,
               {description = "jump to urgent client", group = "client"}),
@@ -358,7 +358,7 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey, "Shift"   }, "space", function () awful.layout.inc(-1)                end,
               {description = "select previous", group = "layout"}),
 
-    awful.key({ modkey, "Control" }, "n",
+    awful.key({ modkey, "Shift" }, "n",
               function ()
                   local c = awful.client.restore()
                   -- Focus restored client
@@ -403,8 +403,13 @@ clientkeys = awful.util.table.join(
               {description = "move to master", group = "client"}),
     awful.key({ modkey,           }, "o",      function (c) c:move_to_screen()               end,
               {description = "move to screen", group = "client"}),
-    awful.key({ modkey,           }, "t",      function (c) c.ontop = not c.ontop            end,
-              {description = "toggle keep on top", group = "client"}),
+    awful.key({ modkey,           }, "t",      
+        function (c) 
+            c.ontop = not c.ontop
+            c.floating = not c.floating
+            c.sticky = not c.sticky            
+        end,
+              {description = "Turn into Widget: toggle keep on top,sticky and float", group = "client"}),
     awful.key({ modkey,           }, "n",
         function (c)
             -- The client currently has the input focus, so it cannot be
