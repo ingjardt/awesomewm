@@ -61,10 +61,10 @@ modkey = "Mod4"
 -- Table of layouts to cover with awful.layout.inc, order matters.
 awful.layout.layouts = {
     awful.layout.suit.tile,
+    awful.layout.suit.floating,
     awful.layout.suit.fair,
     awful.layout.suit.tile.left,
     awful.layout.suit.max,
-    awful.layout.suit.floating,
     --awful.layout.suit.tile.bottom,
     --awful.layout.suit.tile.top,
     --awful.layout.suit.fair.horizontal,
@@ -187,7 +187,7 @@ awful.screen.connect_for_each_screen(function(s)
     set_wallpaper(s)
 
     -- Each screen has its own tag table.
-    awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
+    awful.tag({ "1", "2:Email", "3:Calendar,Trello,Harvest", "4:Docs", "5:Chat", "6", "7:Music", "8:Android", "9:Python" }, s, awful.layout.layouts[1])
 
     -- Create a promptbox for each screen
     s.mypromptbox = awful.widget.prompt()
@@ -253,6 +253,19 @@ globalkeys = awful.util.table.join(
     awful.key({  modkey           }, "KP_Insert", function () awful.spawn("/home/ingjard/bin/mute_toggle") end,
               {description="Toggle Mute", group="Media"}),
     --Ingjards hotkeys
+    awful.key({ modkey, "Shift"   }, "Left", 
+              function()
+                   for i = 1, screen.count() do
+                       awful.tag.viewprev(i)
+                   end
+              end, {description="Previous tag on all screens", group="Ingjard"}),
+
+    awful.key({ modkey, "Shift"   }, "Right", 
+             function()
+                 for i = 1, screen.count() do
+                     awful.tag.viewnext(i)
+                 end
+             end, {description="Next tag on all screens", group="Ingjard"}),
     awful.key({ modkey,           }, "w", function () awful.spawn("browser") end,
               {description="Open Browser", group="Ingjard"}),
     awful.key({ modkey,           }, "e", function () awful.spawn("newnote") end,
@@ -401,8 +414,10 @@ clientkeys = awful.util.table.join(
               {description = "toggle floating", group = "client"}),
     awful.key({ modkey, "Control" }, "Return", function (c) c:swap(awful.client.getmaster()) end,
               {description = "move to master", group = "client"}),
-    awful.key({ modkey,           }, "o",      function (c) c:move_to_screen()               end,
-              {description = "move to screen", group = "client"}),
+    awful.key({ modkey,           }, "o",      function (c) c:move_to_screen(c.screen.index+1)               end,
+              {description = "move to next screen", group = "client"}),
+    awful.key({ modkey,"Shift"           }, "o",      function (c) c:move_to_screen(c.screen.index-1)               end,
+              {description = "move to prev screen", group = "client"}),
     awful.key({ modkey,           }, "t",      
         function (c) 
             c.ontop = not c.ontop
