@@ -187,8 +187,8 @@ awful.screen.connect_for_each_screen(function(s)
     set_wallpaper(s)
 
     -- Each screen has its own tag table.
-    awful.tag({ "1" .. "_" .. s.index, "2" .. "_" .. s.index, "3:Calendar,Trello,Harvest", "4:Docs", "5:Chat", "6:Music", "7:Android", "8:Python", "9:Privat" }, s, awful.layout.layouts[1])
-
+    awful.tag({ "1: Default" .. "(" .. s.index .. ")", "2: Email".. "(" .. s.index .. ")", "3:Calendar,Trello,Harvest".. "(" .. s.index .. ")", "4:Docs".. "(" .. s.index .. ")", "5:Chat".. "(" .. s.index .. ")", "6:Music".. "(" .. s.index .. ")", "7:Android".. "(" .. s.index .. ")", "8:Python".. "(" .. s.index .. ")", "9:Database".. "(" .. s.index .. ")" }, s, awful.layout.layouts[1])
+ 
     -- Create a promptbox for each screen
     s.mypromptbox = awful.widget.prompt()
     -- Create an imagebox widget which will contains an icon indicating which layout we're using.
@@ -266,6 +266,49 @@ globalkeys = awful.util.table.join(
                      awful.tag.viewnext(i)
                  end
              end, {description="Next tag on all screens", group="Ingjard"}),
+    
+	awful.key({ modkey,    }, "c", 
+	             function()
+	                 naughty.notify({text="TEST"})
+	                 s = awful.screen.focused()
+	                 -- o = s.outputs
+	                 -- for k,v in pairs(o["name"]) do 
+	                 -- naughty.notify({text=tostring(v)})
+	                 -- end
+	                 screen.fake_add(-10, 1000, 10, 10)
+
+	                --naughty.notify({text=tostring(screen.count())})
+	                 tags = s.tags
+	                 -- for i,v in ipairs(tags) do
+	                 -- 	naughty.notify({text=v.name})
+	                 -- end
+
+	                 totag = awful.tag.find_by_name(s,"2_1") 
+	                 --naughty.notify({text=tostring(totag)})
+	                 
+	                 clients = s.all_clients
+	                 for i,v in ipairs(clients) do
+	                 	--naughty.notify({text=tostring(v)})
+	                 	--awful.client.movetotag(totag,v)
+	                 end
+	                 --c = screen.clients(s)
+	             end, {description="Test create fake screen", group="Ingjard"}),
+
+
+	awful.key({ modkey,    }, "d", 
+	             function()
+	                 naughty.notify({text="TEST"})
+	                 s = screen[screen.count()]	 
+	                 --naughty.notify({text=tostring(s)})
+	                 --naughty.notify({text=s})
+	                 
+	                 s.fake_remove(s)
+
+	             end, {description="Test", group="Ingjard"}),
+
+
+    
+
     awful.key({ modkey,           }, "w", function () awful.spawn("browser") end,
               {description="Open Browser", group="Ingjard"}),
     awful.key({ modkey,           }, "e", function () awful.spawn("newnote") end,
@@ -651,17 +694,48 @@ run_once("nm-applet")
 run_once("synergy")
 run_once("update-manager")
 
--- https://www.reddit.com/r/awesomewm/comments/5r9mgu/client_layout_not_preserved_when_switching/
---tag.connect_signal("request::screen", function(t)
---    clients = t:clients()
---    for s in screen do
---        if s ~= t.screen and clients  then
---               for c in clients do
---                  c.screen = s
---                  c.tag = 1
---                  end
---            return
---        end
---    end
---end)
 
+-- screen.connect_signal("added", function(s)
+--     naughty.notify({text="Success!"})
+--     tags = s.tags
+--     for i,v in pairs(tags) do
+--     	--naughty.notify({text=tostring(v.name)})
+--     end
+-- end)
+
+
+tag.connect_signal("request::screen", function(t)
+	naughty.notify({text="Screen removed"})
+	naughty.notify({text="Screen count=" .. screen.count()})
+	naughty.notify({text="Tag looking for a home:" .. t.name})
+	
+	
+    clients = t:clients()
+    for s in screen do
+        if s ~= t.screen and clients and next(clients) then
+            t.screen = s
+            t.volatile = true
+            return
+        end
+    end
+end)
+
+
+awful.screen.connect_for_each_screen(function(s)
+    --naughty.notify({text="New screen added"})
+    tags = s.tags
+    for i,newtag in pairs(tags) do
+    	naughty.notify({text=tostring(newtag.name)})
+    	for s2 in screen do
+    		if s ~= s2 then
+    			foundtag = awful.tag.find_by_name(s2,newtag.name)
+	    		if foundtag then
+	    			--naughty.notify({text=tostring("Found an existing tag for this screen"..foundtag.name)})
+	    			awful.tag.swap(foundtag,newtag)
+	    			awful.tag.delete(newtag)
+	    		end
+    		end
+    	end
+
+    end
+end)
