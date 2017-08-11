@@ -187,7 +187,7 @@ awful.screen.connect_for_each_screen(function(s)
     set_wallpaper(s)
 
     -- Each screen has its own tag table.
-    awful.tag({ "1", "2:Email", "3:Calendar,Trello,Harvest", "4:Docs", "5:Chat", "6", "7:Music", "8:Android", "9:Python" }, s, awful.layout.layouts[1])
+    awful.tag({ "1" .. "_" .. s.index, "2" .. "_" .. s.index, "3:Calendar,Trello,Harvest", "4:Docs", "5:Chat", "6:Music", "7:Android", "8:Python", "9:Privat" }, s, awful.layout.layouts[1])
 
     -- Create a promptbox for each screen
     s.mypromptbox = awful.widget.prompt()
@@ -253,14 +253,14 @@ globalkeys = awful.util.table.join(
     awful.key({  modkey           }, "KP_Insert", function () awful.spawn("/home/ingjard/bin/mute_toggle") end,
               {description="Toggle Mute", group="Media"}),
     --Ingjards hotkeys
-    awful.key({ modkey, "Shift"   }, "Left", 
+    awful.key({ modkey,    }, "Left", 
               function()
                    for i = 1, screen.count() do
                        awful.tag.viewprev(i)
                    end
               end, {description="Previous tag on all screens", group="Ingjard"}),
 
-    awful.key({ modkey, "Shift"   }, "Right", 
+    awful.key({ modkey,    }, "Right", 
              function()
                  for i = 1, screen.count() do
                      awful.tag.viewnext(i)
@@ -296,9 +296,9 @@ globalkeys = awful.util.table.join(
               ),
     awful.key({ modkey,           }, "s",      hotkeys_popup.show_help,
               {description="show help", group="awesome"}),
-    awful.key({ modkey,           }, "Left",   awful.tag.viewprev,
+    awful.key({ modkey,"Shift"           }, "Left",   awful.tag.viewprev,
               {description = "view previous", group = "tag"}),
-    awful.key({ modkey,           }, "Right",  awful.tag.viewnext,
+    awful.key({ modkey,"Shift"           }, "Right",  awful.tag.viewnext,
               {description = "view next", group = "tag"}),
     awful.key({ modkey,"Control"           }, "j",   awful.tag.viewprev,
               {description = "view previous", group = "tag"}),
@@ -384,18 +384,19 @@ globalkeys = awful.util.table.join(
 
     -- Prompt
     awful.key({ modkey },            "r",     function () awful.screen.focused().mypromptbox:run() end,
-              {description = "run prompt", group = "launcher"})
+              {description = "run prompt", group = "launcher"}),
 
-    -- awful.key({ modkey }, "x",
-    --           function ()
-    --               awful.prompt.run {
-    --                 prompt       = "Run Lua code: ",
-    --                 textbox      = awful.screen.focused().mypromptbox.widget,
-    --                 exe_callback = awful.util.eval,
-    --                 history_path = awful.util.get_cache_dir() .. "/history_eval"
-    --               }
-    --           end,
-    --           {description = "lua execute prompt", group = "awesome"}),
+     awful.key({ modkey,"Shift" }, "x",
+               function ()
+                   awful.prompt.run {
+                     prompt       = "Run Lua code: ",
+                     textbox      = awful.screen.focused().mypromptbox.widget,
+                     exe_callback = awful.util.eval,
+                     history_path = awful.util.get_cache_dir() .. "/history_eval"
+                   }
+               end,
+               {description = "lua execute prompt", group = "awesome"})
+
     -- Menubar
     -- awful.key({ modkey }, "p", function() menubar.show() end,
     --           {description = "show the menubar", group = "launcher"})
@@ -446,15 +447,26 @@ clientkeys = awful.util.table.join(
 for i = 1, 9 do
     globalkeys = awful.util.table.join(globalkeys,
         -- View tag only.
-        awful.key({ modkey }, "#" .. i + 9,
-                  function ()
-                        local screen = awful.screen.focused()
-                        local tag = screen.tags[i]
-                        if tag then
-                           tag:view_only()
-                        end
-                  end,
-                  {description = "view tag #"..i, group = "tag"}),
+        -- https://superuser.com/questions/605740/simultaneously-switch-tags-as-one-screen-in-multi-monitor-setup-in-3-5
+         awful.key({ modkey }, "#" .. i + 9,
+             function ()
+                 for screen = 1, screen.count() do
+                     local tag = awful.tag.gettags(screen)[i]
+                     if tag then
+                         awful.tag.viewonly(tag)
+                     end
+                 end
+             end
+         ),
+--        awful.key({ modkey }, "#" .. i + 9,
+--                  function ()
+--                        local screen = awful.screen.focused()
+--                        local tag = screen.tags[i]
+--                        if tag then
+--                           tag:view_only()
+--                        end
+--                  end,
+--                  {description = "view tag #"..i, group = "tag"}),
         -- Toggle tag display.
         awful.key({ modkey, "Control" }, "#" .. i + 9,
                   function ()
@@ -638,3 +650,18 @@ run_once("dropbox start")
 run_once("nm-applet")
 run_once("synergy")
 run_once("update-manager")
+
+-- https://www.reddit.com/r/awesomewm/comments/5r9mgu/client_layout_not_preserved_when_switching/
+--tag.connect_signal("request::screen", function(t)
+--    clients = t:clients()
+--    for s in screen do
+--        if s ~= t.screen and clients  then
+--               for c in clients do
+--                  c.screen = s
+--                  c.tag = 1
+--                  end
+--            return
+--        end
+--    end
+--end)
+
