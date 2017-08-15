@@ -187,7 +187,7 @@ awful.screen.connect_for_each_screen(function(s)
     set_wallpaper(s)
 
     -- Each screen has its own tag table.
-    awful.tag({ "1: Default" .. "(" .. s.index .. ")", "2: Email".. "(" .. s.index .. ")", "3:Calendar,Trello,Harvest".. "(" .. s.index .. ")", "4:Docs".. "(" .. s.index .. ")", "5:Chat".. "(" .. s.index .. ")", "6:Music".. "(" .. s.index .. ")", "7:Android".. "(" .. s.index .. ")", "8:Python".. "(" .. s.index .. ")", "9:Database".. "(" .. s.index .. ")" }, s, awful.layout.layouts[1])
+    awful.tag({ "1: Default" .. "(" .. s.index .. ")", "2: Email".. "(" .. s.index .. ")", "3:Calendar,Trello,Harvest" .. "(" .. s.index .. ")", "4:Docs".. "(" .. s.index .. ")", "5:Chat".. "(" .. s.index .. ")", "6:Music".. "(" .. s.index .. ")", "7:Android".. "(" .. s.index .. ")", "8:Python".. "(" .. s.index .. ")", "9:Database".. "(" .. s.index .. ")" }, s, awful.layout.layouts[1])
  
     -- Create a promptbox for each screen
     s.mypromptbox = awful.widget.prompt()
@@ -267,6 +267,18 @@ globalkeys = awful.util.table.join(
                  end
              end, {description="Next tag on all screens", group="Ingjard"}),
     
+    awful.key({ modkey,"Control"    }, "j", function()
+                   for i = 1, screen.count() do
+                       awful.tag.viewprev(i)
+                   end
+              end, {description="Previous tag on all screens", group="Ingjard"}),
+
+    awful.key({ modkey,"Control"    }, "k", 
+             function()
+                 for i = 1, screen.count() do
+                     awful.tag.viewnext(i)
+                 end
+             end, {description="Next tag on all screens", group="Ingjard"}),
 	awful.key({ modkey,    }, "c", 
 	             function()
 	                 naughty.notify({text="TEST"})
@@ -315,9 +327,9 @@ globalkeys = awful.util.table.join(
               {description="New Note", group="Ingjard"}),
     awful.key({ modkey,           }, "x", function () awful.spawn("xfce4-appfinder -c", {floating = true, placement = awful.placement.centered } ) end,
               {description="Open App Finder", group="Ingjard"}),
-    awful.key({ modkey,           }, "p", function () awful.spawn(".screenlayout/hotkey_super_p.sh") end,
+    awful.key({ modkey,           }, "p", function () awful.spawn(".screenlayout/laptop.sh") end,
               {description="Screen Layout: Laptop Only", group="Ingjard"}),
-    awful.key({ modkey, "Shift"           }, "p", function () awful.spawn(".screenlayout/hotkey_super_shift_p.sh" ) end,
+    awful.key({ modkey, "Shift"   }, "p", function () awful.spawn(".screenlayout/dock_3.sh" ) end,
               {description="Screen Layout: Docking", group="Ingjard"}),
     awful.key({ modkey,           }, "g", function () awful.spawn("evince /home/ingjard/Dropbox/GTD/MazeMap/GTD.pdf" ) end,
               {description="GTD Checklist", group="Ingjard"}),
@@ -343,10 +355,10 @@ globalkeys = awful.util.table.join(
               {description = "view previous", group = "tag"}),
     awful.key({ modkey,"Shift"           }, "Right",  awful.tag.viewnext,
               {description = "view next", group = "tag"}),
-    awful.key({ modkey,"Control"           }, "j",   awful.tag.viewprev,
-              {description = "view previous", group = "tag"}),
-    awful.key({ modkey,"Control"           }, "k",  awful.tag.viewnext,
-              {description = "view next", group = "tag"}),
+--    awful.key({ modkey,"Control"           }, "j",   awful.tag.viewprev,
+--              {description = "view previous", group = "tag"}),
+--    awful.key({ modkey,"Control"           }, "k",  awful.tag.viewnext,
+--              {description = "view next", group = "tag"}),
     awful.key({ modkey,           }, "Escape", awful.tag.history.restore,
               {description = "go back", group = "tag"}),
 
@@ -458,9 +470,9 @@ clientkeys = awful.util.table.join(
               {description = "toggle floating", group = "client"}),
     awful.key({ modkey, "Control" }, "Return", function (c) c:swap(awful.client.getmaster()) end,
               {description = "move to master", group = "client"}),
-    awful.key({ modkey,           }, "o",      function (c) c:move_to_screen(c.screen.index+1)               end,
+    awful.key({ modkey,"Shift"           }, "o",      function (c) c:move_to_screen(c.screen.index+1)               end,
               {description = "move to next screen", group = "client"}),
-    awful.key({ modkey,"Shift"           }, "o",      function (c) c:move_to_screen(c.screen.index-1)               end,
+    awful.key({ modkey,           }, "o",      function (c) c:move_to_screen(c.screen.index-1)               end,
               {description = "move to prev screen", group = "client"}),
     awful.key({ modkey,           }, "t",      
         function (c) 
@@ -692,7 +704,7 @@ run_once("xfce4-power-manager")
 run_once("dropbox start")
 run_once("nm-applet")
 run_once("synergy")
-run_once("update-manager")
+--run_once("update-manager")
 
 
 -- screen.connect_signal("added", function(s)
@@ -712,9 +724,13 @@ tag.connect_signal("request::screen", function(t)
 	
     clients = t:clients()
     for s in screen do
-        if s ~= t.screen and clients and next(clients) then
-            t.screen = s
-            t.volatile = true
+        if s~=t.screen and clients and next(clients) then
+            awful.tag.setscreen(s,t)
+            --t.volatile = true
+	    for c in t.clients do
+	     awful.client.movetogtag(t,c)
+	          naughty.notify({text=tostring(c.name)})
+            end
             return
         end
     end
@@ -725,7 +741,7 @@ awful.screen.connect_for_each_screen(function(s)
     --naughty.notify({text="New screen added"})
     tags = s.tags
     for i,newtag in pairs(tags) do
-    	naughty.notify({text=tostring(newtag.name)})
+       --naughty.notify({text=tostring(newtag.name)})
     	for s2 in screen do
     		if s ~= s2 then
     			foundtag = awful.tag.find_by_name(s2,newtag.name)
