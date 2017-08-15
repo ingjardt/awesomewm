@@ -720,20 +720,7 @@ tag.connect_signal("request::screen", function(t)
 	naughty.notify({text="Screen removed"})
 	naughty.notify({text="Screen count=" .. screen.count()})
 	naughty.notify({text="Tag looking for a home:" .. t.name})
-	
-	
-    clients = t:clients()
-    for s in screen do
-        if s~=t.screen and clients and next(clients) then
-            awful.tag.setscreen(s,t)
-            --t.volatile = true
-	    for c in t.clients do
-	     awful.client.movetogtag(t,c)
-	          naughty.notify({text=tostring(c.name)})
-            end
-            return
-        end
-    end
+        awful.tag.setscreen(screen.count(),t)
 end)
 
 
